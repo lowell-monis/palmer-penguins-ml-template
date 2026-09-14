@@ -1,6 +1,6 @@
 # 🐧 Palmer Penguins Species Classifier & Data Lifecycle Pipeline
 ### *MSU AI Club Workshop 01 Template Repository*  
-**Event Link**: [MSU AI Club Event Page (100 Pts)](https://www.msuaiclub.com/events/df4d51d5-195a-4a8a-bd5e-db9c84133f81)  
+**Event Link**: [MSU AI Club Event Page](https://www.msuaiclub.com/events/df4d51d5-195a-4a8a-bd5e-db9c84133f81)  
 
 [![Python](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://www.python.org/)
 [![scikit-learn](https://img.shields.io/badge/scikit--learn-1.0%2B-orange.svg)](https://scikit-learn.org/)
