@@ -2,12 +2,12 @@
 Palmer Penguins Species Classifier & Data Lifecycle Training Pipeline
 Template Repository for MSU AI Club Workshop 01
 
-This script demonstrates a complete 5-Stage Data Lifecycle pipeline:
-  • Stage 1 (Ingestion)     : Load raw dataset & inspect unmeasured dimensions
-  • Stage 2 (Processing)    : Handle missing data using demographic-preserving imputation
-  • Stage 3 (Engineering)   : Build feature matrix X and target y
-  • Stage 4 (Model Training): Train Random Forest & evaluate cohort metrics
-  • Stage 5 (Export)        : Save trained model artifact (penguin_model.pkl)
+DATA DOWNLOAD INSTRUCTIONS:
+This script automatically downloads the Palmer Penguins dataset from the public URL below.
+Never commit raw dataset files directly to git repositories!
+
+Public Data URL:
+    https://raw.githubusercontent.com/mwaskom/seaborn-data/master/penguins.csv
 """
 
 import os
@@ -17,28 +17,28 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.metrics import accuracy_score, classification_report
 
 # Ensure cross-platform UTF-8 terminal encoding
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 
-def load_data(file_path="penguins.csv"):
+# Public Dataset URL
+DATA_URL = "https://raw.githubusercontent.com/mwaskom/seaborn-data/master/penguins.csv"
+
+def load_data(url=DATA_URL):
     """
-    STAGE 1: INGESTION & RAW DATA DIAGNOSTIC
-    ----------------------------------------
-    [Data Lifecycle Hint]: Always inspect missingness rates and feature distributions
-    before applying any algorithms. Notice how missing values occur across bill/flipper measurements.
+    STAGE 1: DATA INGESTION VIA PUBLIC URL
+    --------------------------------------
+    [Data Lifecycle Hint]: Fetch datasets via remote URLs or environment variables.
+    Never commit raw data CSV files into git repositories!
     """
-    if not os.path.exists(file_path):
-        file_path = "https://raw.githubusercontent.com/lowell-monis/palmer-penguins-ml-template/main/penguins.csv"
-    
-    print(f"[Stage 1: Ingestion] Loading raw dataset from: {file_path}")
-    df = pd.read_csv(file_path)
-    print(f"                     Dataset Shape: {df.shape[0]} rows, {df.shape[1]} columns")
-    
-    missing_count = df.isnull().sum().sum()
-    print(f"                     [Hint] Total missing values detected across dataset: {missing_count}")
+    print(f"[Stage 1: Ingestion] Downloading dataset from public URL: {url}")
+    df = pd.read_csv(url)
+    print(f"                     Dataset Loaded: {df.shape[0]} rows, {df.shape[1]} columns")
+    print(f"                     [Hint] Missing values count by column:")
+    for col, null_count in df.isnull().sum().items():
+        print(f"                       * {col:20s}: {null_count} missing values")
     return df
 
 def clean_data(df):
@@ -51,7 +51,6 @@ def clean_data(df):
     """
     df_clean = df.copy()
     
-    # Impute numeric features with median
     numeric_cols = ["bill_length_mm", "bill_depth_mm", "flipper_length_mm", "body_mass_g"]
     for col in numeric_cols:
         if df_clean[col].isnull().sum() > 0:
@@ -59,7 +58,6 @@ def clean_data(df):
             df_clean[col] = df_clean[col].fillna(median_val)
             print(f"                     [Hint] Imputed missing '{col}' with median: {median_val:.1f}")
             
-    # Impute categorical sex with mode
     if df_clean["sex"].isnull().sum() > 0:
         mode_sex = df_clean["sex"].mode()[0]
         df_clean["sex"] = df_clean["sex"].fillna(mode_sex)
@@ -72,13 +70,12 @@ def train_model(df):
     STAGE 3 & 4: FEATURE ENGINEERING, TRAINING & COHORT EVALUATION
     --------------------------------------------------------------
     [Data Lifecycle Hint]: Evaluate per-class precision and recall rather than relying
-    solely on overall accuracy. Smaller classes (like Chinstrap) require balanced evaluation.
+    solely on overall accuracy. Smaller classes require balanced evaluation.
     """
     feature_cols = ["bill_length_mm", "bill_depth_mm", "flipper_length_mm", "body_mass_g"]
     X = df[feature_cols]
     y = df["species"]
     
-    # Stratified split to ensure balanced species representation in train/test sets
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42, stratify=y
     )
@@ -113,12 +110,12 @@ def export_model(model, output_path="penguin_model.pkl"):
     print(f"\n[Stage 5: Export] Serialized model saved to: {output_path}")
 
 def main():
-    print("🚀 Starting Palmer Penguins ML Classifier & Data Lifecycle Training...\n")
+    print("Starting Palmer Penguins ML Classifier & Data Lifecycle Training...\n")
     df_raw = load_data()
     df_clean = clean_data(df_raw)
     model, accuracy = train_model(df_clean)
     export_model(model)
-    print("\n✅ Training Pipeline Completed Successfully!")
+    print("\n[Success] Training Pipeline Completed Successfully!")
 
 if __name__ == "__main__":
     main()
