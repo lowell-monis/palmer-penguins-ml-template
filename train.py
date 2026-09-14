@@ -30,13 +30,13 @@ def load_data(url=DATA_URL):
     """
     STAGE 1: DATA INGESTION VIA PUBLIC URL
     --------------------------------------
-    [Data Lifecycle Hint]: Fetch datasets via remote URLs or environment variables.
-    Never commit raw data CSV files into git repositories!
+    Fetch dataset dynamically from remote URL.
+    Never commit raw data CSV files directly to git repositories!
     """
     print(f"[Stage 1: Ingestion] Downloading dataset from public URL: {url}")
     df = pd.read_csv(url)
     print(f"                     Dataset Loaded: {df.shape[0]} rows, {df.shape[1]} columns")
-    print(f"                     [Hint] Missing values count by column:")
+    print(f"                     Missing values count by column:")
     for col, null_count in df.isnull().sum().items():
         print(f"                       * {col:20s}: {null_count} missing values")
     return df
@@ -45,9 +45,7 @@ def clean_data(df):
     """
     STAGE 2: DATA PROCESSING & IMPUTATION
     -------------------------------------
-    [Data Lifecycle Hint]: Avoid naive row deletion (df.dropna()) as it can silently drop
-    underrepresented cohorts. Here we use median imputation for continuous measurements
-    and mode imputation for categorical attributes.
+    Perform median imputation for continuous features and mode imputation for categorical attributes.
     """
     df_clean = df.copy()
     
@@ -56,12 +54,12 @@ def clean_data(df):
         if df_clean[col].isnull().sum() > 0:
             median_val = df_clean[col].median()
             df_clean[col] = df_clean[col].fillna(median_val)
-            print(f"                     [Hint] Imputed missing '{col}' with median: {median_val:.1f}")
+            print(f"                     Imputed missing '{col}' with median: {median_val:.1f}")
             
     if df_clean["sex"].isnull().sum() > 0:
         mode_sex = df_clean["sex"].mode()[0]
         df_clean["sex"] = df_clean["sex"].fillna(mode_sex)
-        print(f"                     [Hint] Imputed missing 'sex' with mode: {mode_sex}")
+        print(f"                     Imputed missing 'sex' with mode: {mode_sex}")
         
     return df_clean
 
@@ -69,8 +67,7 @@ def train_model(df):
     """
     STAGE 3 & 4: FEATURE ENGINEERING, TRAINING & COHORT EVALUATION
     --------------------------------------------------------------
-    [Data Lifecycle Hint]: Evaluate per-class precision and recall rather than relying
-    solely on overall accuracy. Smaller classes require balanced evaluation.
+    Evaluate per-class precision and recall using stratified train/test split.
     """
     feature_cols = ["bill_length_mm", "bill_depth_mm", "flipper_length_mm", "body_mass_g"]
     X = df[feature_cols]
@@ -102,8 +99,7 @@ def export_model(model, output_path="penguin_model.pkl"):
     """
     STAGE 5: ARTIFACT DEPLOYMENT & EXPORT
     -------------------------------------
-    [Data Lifecycle Hint]: Serialize the trained model artifact so downstream CLI apps
-    and web applications can execute real-time inference without retraining.
+    Serialize trained model to file for real-time CLI and web app predictions.
     """
     with open(output_path, "wb") as f:
         pickle.dump(model, f)

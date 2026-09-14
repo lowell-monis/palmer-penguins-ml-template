@@ -28,12 +28,11 @@ def parse_args():
 
 def load_model(model_path):
     """
-    [Data Lifecycle Hint - Inference Stage]: Ensure saved model artifact exists
-    and load it cleanly for downstream real-time prediction.
+    Ensure saved model artifact exists and load it cleanly for prediction.
     """
     if not os.path.exists(model_path):
         print(f"[Error] Model artifact '{model_path}' not found.")
-        print("        [Hint] Run 'python train.py' first to execute the training pipeline!")
+        print("        Please run 'python train.py' first to execute the training pipeline!")
         sys.exit(1)
     with open(model_path, "rb") as f:
         model = pickle.load(f)
@@ -41,8 +40,7 @@ def load_model(model_path):
 
 def predict_species(model, bill_len, bill_dep, flipper_len, body_mass):
     """
-    [Data Lifecycle Hint - Feature Schema Validation]: Verify input columns
-    match the exact order and naming expected by the trained model.
+    Construct input DataFrame matching feature schema and compute species prediction.
     """
     input_df = pd.DataFrame([{
         "bill_length_mm": bill_len,
